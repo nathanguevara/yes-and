@@ -1,0 +1,117 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Data
+data/raw/
+data/processed/
+*.json
+*.csv
+*.jsonl
+
+# Models
+models/
+*.pth
+*.pt
+*.bin
+*.safetensors
+
+# Experiments
+experiments/
+runs/
+logs/
+tensorboard/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Environment
+.env
+.env.local
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Streamlit
+.streamlit/
+*.log
+
+# ML/AI Training
+checkpoint*/
+wandb/
+mlruns/
+outputs/
+*.ckpt
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.joblib
+
+# Ollama
+.ollama/
+ollama_models/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets
+*.pem
+*.key
+secrets/
+
+# Cache
+.cache/
+*.cache
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Backups
+*.bak
+*.backup
+*~
