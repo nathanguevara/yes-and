@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Backend API service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: yes-and-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_NAME=llama3.2:3b
+      - OLLAMA_HOST=host.docker.internal:11434
+      - HOST=0.0.0.0
+      - PORT=8000
+      - LOG_LEVEL=info
+      - TEMPERATURE=0.9
+      - TOP_P=0.9
+      - MAX_TOKENS=150
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    networks:
+      - yes-and-network
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    
+  # Frontend service
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: yes-and-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - yes-and-network
+    restart: unless-stopped
+
+networks:
+  yes-and-network:
+    driver: bridge
+
+volumes:
+  logs:
+  data:
