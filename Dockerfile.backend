@@ -16,9 +16,8 @@ RUN pip install --no-cache-dir -r requirements-backend.txt
 
 # Copy source code
 COPY src/ ./src/
-COPY logs/ ./logs/
 
-# Create logs directory if it doesn't exist
+# Create logs directory
 RUN mkdir -p logs
 
 # Expose port
