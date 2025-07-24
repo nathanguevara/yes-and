@@ -8,13 +8,20 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
-COPY requirements-backend.txt .
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements-backend.txt
+# Copy pyproject.toml and README for dependency installation
+COPY pyproject.toml README.md ./
 
-# Copy source code
+# Create a temporary src directory for the package to install
+RUN mkdir -p src
+
+# Install dependencies using uv
+RUN uv pip install --system -e .
+
+# Copy actual source code
 COPY src/ ./src/
 
 # Create logs directory

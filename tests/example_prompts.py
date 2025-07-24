@@ -5,33 +5,23 @@ These prompts cover different comedy styles and conversation scenarios.
 
 EXAMPLE_PROMPTS = [
     {
-        "prompt": "Tell me about your worst day ever, but make it funny",
-        "expected_style": "self-deprecating",
-        "description": "Tests self-deprecating humor with personal storytelling"
+        "prompt": "Why should I hire you?"
     },
     
     {
-        "prompt": "What's the deal with people who still use Internet Explorer?",
-        "expected_style": "observational", 
-        "description": "Tests observational comedy about everyday annoyances"
+        "prompt": "Is there any better feeling than the security and hope of a protected left turn arrow?"
     },
     
     {
-        "prompt": "I just got a promotion at work and I'm feeling pretty good about myself",
-        "expected_style": "sarcastic",
-        "description": "Tests sarcastic responses to positive news"
+        "prompt": "I'm going to propose to my girlfriend at a baseball game!"
     },
     
     {
-        "prompt": "Explain quantum physics like you're a stand-up comedian",
-        "expected_style": "witty",
-        "description": "Tests witty explanations of complex topics"
+        "prompt": "What are some check engine lights for strangers? Like not red flags, but we better check on that guy."
     },
     
     {
-        "prompt": "My pet goldfish just learned how to drive",
-        "expected_style": "absurd",
-        "description": "Tests absurd humor with ridiculous scenarios"
+        "prompt": "My memory foam mattress is developig alzheimer’s, and I dont know what to do with it because its already in a home.",
     }
 ]
 
@@ -39,6 +29,3 @@ def get_test_prompts():
     """Return all example prompts for testing."""
     return EXAMPLE_PROMPTS
 
-def get_prompt_by_style(style):
-    """Get example prompts filtered by expected comedy style."""
-    return [p for p in EXAMPLE_PROMPTS if p["expected_style"] == style]

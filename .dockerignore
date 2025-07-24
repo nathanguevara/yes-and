@@ -40,10 +40,13 @@ experiments/
 tests/
 docs/
 models/
-*.md
 requirements-dev.txt
 requirements-minimal.txt
 
 # Don't exclude requirements for specific builds
 !requirements-backend.txt
 !requirements-frontend.txt
+
+# Don't exclude README.md and other needed files
+!README.md
+!pyproject.toml

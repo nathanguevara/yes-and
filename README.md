@@ -25,7 +25,8 @@ yes-and/
 ├── tests/                 # Unit tests
 ├── docs/                  # Documentation
 ├── logs/                  # Application and training logs
-└── venv/                  # Python virtual environment
+├── .venv/                 # Python virtual environment (created by uv)
+└── pyproject.toml         # Project configuration and dependencies
 ```
 
 ## Current Features
@@ -40,18 +41,19 @@ yes-and/
 ## Quick Start
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.11+
 - 8GB+ RAM for local model inference
 - Ollama installed and running
+- uv package manager (https://github.com/astral-sh/uv)
 
 ### Installation
 ```bash
 # Clone and setup
 git clone <repo-url>
 cd yes-and
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-pip install -r requirements.txt
+
+# Install dependencies with uv
+uv sync
 
 # Start Ollama
 ollama serve
@@ -60,6 +62,10 @@ ollama serve
 ollama pull llama3.2:3b
 
 # Run chatbot
+uv run streamlit run src/chatbot/humor_cohost.py
+
+# Or activate the environment first
+source .venv/bin/activate  # or `.venv\Scripts\activate` on Windows
 streamlit run src/chatbot/humor_cohost.py
 ```
 
@@ -155,19 +161,19 @@ src/
 
 ### Setup Development Environment
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+# Install all dependencies including dev tools
+uv sync
 
-# Install dev dependencies
-pip install -r requirements-dev.txt
+# Activate environment
+source .venv/bin/activate  # or `.venv\Scripts\activate` on Windows
 
 # Run tests
-pytest tests/
+uv run pytest tests/
 
 # Code formatting
-black src/
-isort src/
+uv run black src/
+uv run ruff check src/
+uv run mypy src/
 ```
 
 ### Adding New Humor Styles
@@ -225,12 +231,13 @@ MAX_TOKENS = 100
 ## Dependencies
 
 ### Core Requirements
-- **Python 3.8+**: Required for type hints and async features
+- **Python 3.11+**: Required for modern type hints and async features
 - **Ollama**: Local LLM inference engine
 - **CUDA** (optional): For GPU acceleration during training
+- **uv**: Fast Python package manager
 
 ### Python Packages
-See `requirements.txt` for full list. Key dependencies:
+See `pyproject.toml` for full list. Key dependencies:
 - `streamlit`: Web UI framework
 - `ollama`: Python client for Ollama
 - `torch`, `transformers`, `peft`: ML/training stack
@@ -285,6 +292,283 @@ Application logs are stored in `logs/` directory:
 Enable debug logging:
 ```bash
 LOG_LEVEL=DEBUG streamlit run src/chatbot/humor_cohost.py
+```
+
+## API Specification
+
+### Base URL
+- Development: `http://localhost:8000`
+- Docker: `http://localhost:8000`
+
+### Authentication
+Currently, the API does not require authentication. This may change in future versions.
+
+### Endpoints
+
+#### 1. Root Endpoint
+**GET /**
+
+Returns basic API information.
+
+**Response:**
+```json
+{
+  "name": "Yes-And Comedy API",
+  "version": "0.1.0",
+  "description": "AI Comedy Cohost API"
+}
+```
+
+#### 2. Health Check
+**GET /health**
+
+Check if the API and Ollama connection are working.
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "ollama_available": true,
+  "model": "llama3.2:3b",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+#### 3. Generate Humor Response
+**POST /generate**
+
+Generate a humorous response based on user input and selected humor style.
+
+**Request Body:**
+```json
+{
+  "message": "Tell me about your day",
+  "humor_style": "witty",
+  "conversation_history": [
+    {
+      "role": "user",
+      "content": "Hello!"
+    },
+    {
+      "role": "assistant", 
+      "content": "Well hello there! Ready to have more fun than a cat in a laser pointer factory?"
+    }
+  ]
+}
+```
+
+**Parameters:**
+- `message` (string, required): User's input message
+- `humor_style` (string, optional): One of: "witty", "sarcastic", "observational", "self_deprecating", "absurd". Default: "witty"
+- `conversation_history` (array, optional): Previous conversation turns for context
+
+**Response:**
+```json
+{
+  "response": "My day? Picture a sitcom where the main character keeps walking into glass doors. That's been me, but with less laugh track and more actual bruises.",
+  "humor_style": "self_deprecating",
+  "processing_time": 1.23,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+**Error Response:**
+```json
+{
+  "detail": "Error generating response: Ollama service unavailable"
+}
+```
+
+#### 4. Submit Feedback
+**POST /feedback**
+
+Submit user rating for a generated response.
+
+**Request Body:**
+```json
+{
+  "message": "Tell me about your day",
+  "response": "My day? Picture a sitcom where...",
+  "rating": 4,
+  "humor_style": "self_deprecating",
+  "session_id": "optional-session-identifier"
+}
+```
+
+**Parameters:**
+- `message` (string, required): Original user message
+- `response` (string, required): AI's response
+- `rating` (integer, required): Rating from 1-5
+- `humor_style` (string, required): Style used for generation
+- `session_id` (string, optional): Session identifier for tracking
+
+**Response:**
+```json
+{
+  "status": "success",
+  "feedback_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+#### 5. Get Feedback Statistics
+**GET /feedback/stats**
+
+Retrieve aggregated feedback statistics.
+
+**Query Parameters:**
+- `humor_style` (string, optional): Filter by specific humor style
+- `days` (integer, optional): Number of days to include (default: 7)
+
+**Response:**
+```json
+{
+  "total_ratings": 150,
+  "average_rating": 3.8,
+  "rating_distribution": {
+    "1": 10,
+    "2": 15,
+    "3": 40,
+    "4": 55,
+    "5": 30
+  },
+  "by_humor_style": {
+    "witty": {
+      "count": 45,
+      "average": 4.1
+    },
+    "sarcastic": {
+      "count": 35,
+      "average": 3.5
+    }
+  },
+  "period": "7_days"
+}
+```
+
+#### 6. Get Model Information
+**GET /model/info**
+
+Get information about the current model and configuration.
+
+**Response:**
+```json
+{
+  "model_name": "llama3.2:3b",
+  "ollama_version": "0.1.17",
+  "available_humor_styles": [
+    "witty",
+    "sarcastic", 
+    "observational",
+    "self_deprecating",
+    "absurd"
+  ],
+  "generation_params": {
+    "temperature": 0.9,
+    "top_p": 0.9,
+    "max_tokens": 100
+  }
+}
+```
+
+### Error Handling
+
+All endpoints follow consistent error response format:
+
+```json
+{
+  "detail": "Error message describing what went wrong",
+  "error_code": "SPECIFIC_ERROR_CODE",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+**Common Error Codes:**
+- `OLLAMA_UNAVAILABLE`: Ollama service is not accessible
+- `MODEL_NOT_FOUND`: Requested model is not available
+- `INVALID_HUMOR_STYLE`: Provided humor style is not supported
+- `RATE_LIMIT_EXCEEDED`: Too many requests (future implementation)
+
+### Rate Limiting
+Currently not implemented but planned for future versions:
+- 60 requests per minute per IP
+- 1000 requests per hour per IP
+
+### WebSocket Support (Future)
+Planned endpoint for real-time streaming responses:
+- `WS /ws/chat` - WebSocket connection for streaming humor generation
+
+### Python Client Example
+
+```python
+import requests
+
+# Initialize client
+base_url = "http://localhost:8000"
+
+# Check health
+health = requests.get(f"{base_url}/health").json()
+print(f"API Status: {health['status']}")
+
+# Generate humor response
+response = requests.post(
+    f"{base_url}/generate",
+    json={
+        "message": "What's the deal with airplane food?",
+        "humor_style": "observational"
+    }
+).json()
+print(f"AI Response: {response['response']}")
+
+# Submit feedback
+feedback = requests.post(
+    f"{base_url}/feedback",
+    json={
+        "message": "What's the deal with airplane food?",
+        "response": response['response'],
+        "rating": 4,
+        "humor_style": "observational"
+    }
+).json()
+print(f"Feedback submitted: {feedback['feedback_id']}")
+```
+
+### cURL Examples
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Generate response
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Tell me a joke", "humor_style": "witty"}'
+
+# Get feedback stats
+curl http://localhost:8000/feedback/stats?humor_style=witty
+```
+
+### API Client Library
+
+A Python client library is provided in `src/frontend/api_client.py`:
+
+```python
+from src.frontend.api_client import HumorAPIClient
+
+client = HumorAPIClient(base_url="http://localhost:8000")
+
+# Generate response
+response = client.generate_response(
+    message="Hello!",
+    humor_style="sarcastic"
+)
+
+# Submit feedback  
+client.submit_feedback(
+    message="Hello!",
+    response=response,
+    rating=5,
+    humor_style="sarcastic"
+)
 ```
 
 ## Support

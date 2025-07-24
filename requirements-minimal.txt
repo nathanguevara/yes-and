@@ -1,8 +1,0 @@
-# Minimal dependencies for basic functionality
-streamlit==1.31.0
-ollama==0.1.7
-pydantic==2.5.3
-pandas==2.1.4
-numpy==1.26.3
-python-dotenv==1.0.0
-loguru==0.7.2

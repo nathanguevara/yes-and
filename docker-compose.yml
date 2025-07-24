@@ -1,20 +1,39 @@
 version: '3.8'
 
 services:
-  # Backend API service
-  backend:
+  # Ollama service for local LLM inference with GPU support
+  ollama:
     build:
       context: .
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile.ollama
+    container_name: yes-and-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    networks:
+      - yes-and-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # Backend API service
+  backend:
+    image: yes-and-backend:uv-local
     container_name: yes-and-backend
     ports:
       - "8000:8000"
     environment:
       - MODEL_NAME=llama3.2:3b
-      - OLLAMA_HOST=host.docker.internal:11434
+      - OLLAMA_HOST=ollama:11434
       - HOST=0.0.0.0
       - PORT=8000
-      - LOG_LEVEL=info
+      - LOG_LEVEL=INFO
       - TEMPERATURE=0.9
       - TOP_P=0.9
       - MAX_TOKENS=150
@@ -24,24 +43,8 @@ services:
     networks:
       - yes-and-network
     restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    
-  # Frontend service
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    container_name: yes-and-frontend
-    ports:
-      - "8501:8501"
-    environment:
-      - API_BASE_URL=http://backend:8000
     depends_on:
-      - backend
-    networks:
-      - yes-and-network
-    restart: unless-stopped
+      - ollama
 
 networks:
   yes-and-network:
@@ -50,3 +53,4 @@ networks:
 volumes:
   logs:
   data:
+  ollama-models:

@@ -1,0 +1,30 @@
+FROM ollama/ollama:latest
+
+# Set working directory
+WORKDIR /root
+
+# Create entrypoint script
+COPY <<EOF /entrypoint.sh
+#!/bin/bash
+set -e
+
+# Start Ollama in the background
+ollama serve &
+
+# Wait for Ollama to be ready
+sleep 10
+
+# Pull the model if not already present
+ollama pull llama3.2:3b
+
+# Wait for background processes
+wait
+EOF
+
+RUN chmod +x /entrypoint.sh
+
+# Expose Ollama port
+EXPOSE 11434
+
+# Use the entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]
