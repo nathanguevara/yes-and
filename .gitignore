@@ -29,9 +29,10 @@ pip-delete-this-directory.txt
 # Data
 data/raw/
 data/processed/
-*.json
 *.csv
 *.jsonl
+# Only ignore json files in data directories
+data/**/*.json
 
 # Models
 models/

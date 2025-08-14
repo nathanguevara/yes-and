@@ -47,6 +47,9 @@ requirements-minimal.txt
 !requirements-backend.txt
 !requirements-frontend.txt
 
+# Don't exclude frontend directory for frontend builds
+!frontend/
+
 # Don't exclude README.md and other needed files
 !README.md
 !pyproject.toml
