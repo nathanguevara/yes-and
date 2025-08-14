@@ -339,28 +339,83 @@ Check if the API and Ollama connection are working.
 
 Generate a humorous response based on user input and selected humor style.
 
-**Request Body:**
+**Request Body Examples:**
+
+Example 1 - Simple request (no conversation history):
 ```json
 {
-  "message": "Tell me about your day",
+  "user_input": "hit me with your best shot"
+}
+```
+
+Example 2 - Specify humor style:
+```json
+{
+  "user_input": "What's the deal with airplane food?",
+  "humor_style": "observational"
+}
+```
+
+Example 3 - Include session tracking:
+```json
+{
+  "user_input": "Tell me about your day",
+  "humor_style": "self_deprecating",
+  "session_id": "user-session-123"
+}
+```
+
+Example 4 - Single exchange history:
+```json
+{
+  "user_input": "That's hilarious! Tell me more",
   "humor_style": "witty",
   "conversation_history": [
     {
       "role": "user",
-      "content": "Hello!"
+      "content": "What do you think about coffee?"
     },
     {
-      "role": "assistant", 
-      "content": "Well hello there! Ready to have more fun than a cat in a laser pointer factory?"
+      "role": "assistant",
+      "content": "Coffee is just adult peer pressure in liquid form"
     }
-  ]
+  ],
+  "session_id": "coffee-chat-456"
+}
+```
+
+Example 5 - Full conversation context:
+```json
+{
+  "user_input": "Okay but what about tea then?",
+  "humor_style": "sarcastic",
+  "conversation_history": [
+    {
+      "role": "user",
+      "content": "What do you think about coffee?"
+    },
+    {
+      "role": "assistant",
+      "content": "Coffee is just adult peer pressure in liquid form"
+    },
+    {
+      "role": "user", 
+      "content": "That's hilarious! Tell me more"
+    },
+    {
+      "role": "assistant",
+      "content": "Well, it's the only socially acceptable addiction where withdrawal symptoms are considered a personality trait"
+    }
+  ],
+  "session_id": "coffee-chat-456"
 }
 ```
 
 **Parameters:**
-- `message` (string, required): User's input message
+- `user_input` (string, required): User's input message
 - `humor_style` (string, optional): One of: "witty", "sarcastic", "observational", "self_deprecating", "absurd". Default: "witty"
 - `conversation_history` (array, optional): Previous conversation turns for context
+- `session_id` (string, optional): Session identifier for tracking conversations
 
 **Response:**
 ```json
