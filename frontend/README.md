@@ -1,227 +1,138 @@
 # Yes-And Frontend
 
-A modern React frontend for the Yes-And AI Comedy Cohost application.
+Modern React TypeScript frontend for the Yes-And comedy AI chatbot.
 
 ## Features
 
-- 🎭 **Interactive Chat Interface** - Real-time conversation with AI comedy cohost
-- 🎨 **Multiple Humor Styles** - Choose from witty, sarcastic, observational, self-deprecating, and absurd styles
-- ⭐ **Rating System** - Rate AI responses with emoji-based feedback
-- 📊 **Performance Metrics** - View response times, humor scores, and enhancement status
-- 📈 **Statistics Dashboard** - Track feedback stats and style performance
-- 🎛️ **Advanced Controls** - Session management and settings customization
-- 🔄 **Real-time Health Monitoring** - Backend connection status and health checks
+- **React 18**: Modern React with hooks and concurrent features
+- **TypeScript**: Full type safety and excellent developer experience
+- **Tailwind CSS**: Utility-first CSS framework for rapid styling
+- **Zustand**: Lightweight state management
+- **React Query**: Data fetching and caching
+- **Vite**: Fast development server and build tool
+- **Docker Support**: Production-ready containerization
 
-## Tech Stack
-
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **Tailwind CSS** for styling
-- **React Query** for API state management
-- **Zustand** for global state management
-- **React Hook Form** for form handling
-- **Lucide React** for icons
-
-## Quick Start
+## Development
 
 ### Prerequisites
-
-- Node.js 18+ 
+- Node.js 20+ 
 - npm or yarn
-- Backend API running on http://localhost:8000
 
-### Installation
-
+### Setup
 ```bash
 # Install dependencies
 npm install
 
-# Copy environment configuration
-cp .env.example .env
-
 # Start development server
 npm run dev
-```
 
-The frontend will be available at http://localhost:3000
-
-### Building for Production
-
-```bash
-# Build the application
+# Build for production
 npm run build
 
-# Preview the build
-npm run preview
-```
+# Type checking
+npm run type-check
 
-## Project Structure
-
-```
-src/
-├── components/          # React components
-│   ├── ui/             # Reusable UI components
-│   ├── ChatInterface.tsx
-│   ├── ChatMessage.tsx
-│   ├── ChatInput.tsx
-│   ├── Sidebar.tsx
-│   ├── Rating.tsx
-│   └── HumorStyleSelector.tsx
-├── pages/              # Page components
-│   └── ChatPage.tsx
-├── services/           # API client and services
-│   └── api.ts
-├── stores/             # Zustand stores
-│   └── chat.ts
-├── types/              # TypeScript type definitions
-│   └── api.ts
-├── styles/             # Global styles
-│   └── index.css
-└── App.tsx             # Main application component
-```
-
-## Configuration
-
-### Environment Variables
-
-- `VITE_API_BASE_URL`: Backend API base URL (default: http://localhost:8000)
-- `VITE_DEV_MODE`: Enable development features (default: true)
-
-### Customization
-
-The application can be customized through:
-
-- **Theme colors**: Edit `tailwind.config.js` comedy color palette
-- **API endpoints**: Modify `src/services/api.ts`
-- **Chat behavior**: Update `src/stores/chat.ts`
-- **UI components**: Customize components in `src/components/ui/`
-
-## API Integration
-
-The frontend connects to the Yes-And backend API with these endpoints:
-
-- `GET /health` - Health check
-- `POST /generate` - Generate comedy responses
-- `POST /feedback` - Submit user ratings
-- `GET /feedback/stats` - Get feedback statistics
-- `GET /model/info` - Get model information
-
-See the main project README for complete API documentation.
-
-## Development
-
-### Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript type checking
-
-### Code Style
-
-- **ESLint** for code linting
-- **TypeScript** for type safety
-- **Prettier** for code formatting (recommended)
-
-### State Management
-
-- **Chat State**: Managed by Zustand store in `src/stores/chat.ts`
-- **API State**: Managed by React Query for caching and synchronization
-- **UI State**: Local component state for transient UI interactions
-
-## Deployment
-
-### Static Hosting
-
-Build the application and deploy the `dist` folder to any static hosting service:
-
-```bash
-npm run build
-# Deploy the dist/ folder
-```
-
-### Docker
-
-```dockerfile
-FROM node:18-alpine as build
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Linting
+npm run lint
 ```
 
 ### Environment Configuration
 
-For production deployment, ensure:
+Create a `.env` file in the frontend directory:
+```bash
+# API Configuration
+VITE_API_BASE_URL=http://localhost:8000
+VITE_DEV_MODE=true
+```
 
-1. Set `VITE_API_BASE_URL` to your production API URL
-2. Configure CORS on the backend to allow your frontend domain
-3. Set up proper error monitoring and analytics
+For production deployment, update the API URL:
+```bash
+VITE_API_BASE_URL=http://192.168.50.2:31102
+```
 
-## Features in Detail
+## Docker Deployment
 
-### Chat Interface
+### Production Build
+```bash
+# Build from project root
+docker build -f Dockerfile.frontend -t yes-and-frontend .
 
-- Real-time message streaming
-- Typing indicators
-- Message history persistence (optional)
-- Error handling and retry logic
+# Run container
+docker run -p 80:80 yes-and-frontend
+```
 
-### Rating System
+### Development Container
+```bash
+# Build development image
+docker build -f Dockerfile.dev -t yes-and-frontend:dev .
 
-- 5-level emoji-based ratings
-- Immediate feedback submission
-- Rating statistics tracking
-- Style-specific performance metrics
+# Run with hot reload
+docker run -p 5173:5173 -v $(pwd):/app yes-and-frontend:dev
+```
 
-### Humor Styles
+## Architecture
 
-- **Witty**: Clever wordplay and smart observations
-- **Sarcastic**: Dry humor with irony
-- **Observational**: Funny takes on everyday situations  
-- **Self-Deprecating**: Humble humor at one's own expense
-- **Absurd**: Wildly imaginative and unexpected humor
+### Component Structure
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # Base UI components (Button, Input, etc.)
+│   ├── ChatInterface.tsx
+│   ├── ChatMessage.tsx
+│   ├── HumorStyleSelector.tsx
+│   └── Sidebar.tsx
+├── pages/              # Page components
+├── services/           # API client and external services
+├── stores/             # Zustand state management
+├── types/              # TypeScript type definitions
+└── styles/             # Global styles and Tailwind config
+```
 
-### Performance Metrics
+### State Management
 
-- Response generation time
-- Humor quality scores
-- Enhancement status (original vs enhanced responses)
-- Real-time backend health monitoring
+The app uses Zustand for state management:
+- **Chat Store**: Manages conversation history and UI state
+- **Settings Store**: User preferences and configuration
 
-## Troubleshooting
+### API Integration
 
-### Common Issues
+The frontend communicates with the FastAPI backend via:
+- REST API calls for generating responses and submitting feedback
+- TypeScript interfaces for type-safe API communication
+- Automatic error handling and loading states
 
-**Backend Connection Failed**
-- Ensure the backend API is running on the configured port
-- Check CORS configuration
-- Verify the `VITE_API_BASE_URL` environment variable
+## Configuration Files
 
-**Build Errors**
-- Clear node_modules and reinstall dependencies
-- Check TypeScript configuration
-- Ensure all imports use proper paths
+- **package.json**: Dependencies and scripts
+- **tsconfig.json**: TypeScript configuration
+- **tailwind.config.js**: Tailwind CSS configuration
+- **vite.config.ts**: Vite build configuration
+- **nginx.conf**: Production nginx configuration
 
-**Performance Issues**
-- Enable React Query DevTools in development
-- Check browser network tab for slow API calls
-- Monitor bundle size with `npm run build`
+## Deployment
+
+The frontend is designed for production deployment with:
+- **Nginx**: Serves static assets and handles SPA routing
+- **Docker**: Multi-stage build for optimized production images
+- **CI/CD**: Automated builds via GitHub Actions
+
+## Available Scripts
+
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm run preview`: Preview production build locally
+- `npm run lint`: Run ESLint
+- `npm run type-check`: Run TypeScript type checking
+
+## Browser Support
+
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
 
 ## Contributing
 
-1. Follow the existing code style and patterns
-2. Add TypeScript types for new features
-3. Test changes with the backend API
-4. Update documentation for new features
-
-## License
-
-MIT License - See the main project LICENSE file for details.
+1. Follow the existing code style
+2. Add type definitions for new features
+3. Update tests when adding functionality
+4. Ensure production build works correctly

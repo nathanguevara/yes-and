@@ -15,64 +15,95 @@ A witty AI comedy partner built for real-time banter, jokes, and improvised humo
 ```
 yes-and/
 ├── src/
-│   ├── chatbot/           # Main chatbot application
+│   ├── api/               # FastAPI backend server
+│   ├── chatbot/           # Legacy Streamlit application
 │   ├── training/          # Model fine-tuning pipeline
 │   ├── data/              # Comedy datasets and preprocessing
 │   └── utils/             # Shared utilities
+├── frontend/              # React TypeScript frontend
+│   ├── src/               # Frontend source code
+│   ├── public/            # Static assets
+│   └── nginx.conf         # Production nginx config
 ├── models/                # Trained model checkpoints
 ├── data/                  # Training data (comedic dialogues)
-├── experiments/           # Training experiments and logs
 ├── tests/                 # Unit tests
 ├── docs/                  # Documentation
 ├── logs/                  # Application and training logs
 ├── .venv/                 # Python virtual environment (created by uv)
+├── Dockerfile.backend     # Backend container build
+├── Dockerfile.frontend    # Frontend container build
+├── Dockerfile.ollama      # Ollama container build
+├── docker-compose.yml     # Multi-service orchestration
 └── pyproject.toml         # Project configuration and dependencies
 ```
 
 ## Current Features
 
-- **Streamlit Chat Interface**: Interactive web-based chatbot
+- **React Frontend**: Modern TypeScript web interface
+- **FastAPI Backend**: RESTful API with automatic documentation
+- **Legacy Streamlit Interface**: Alternative web-based chatbot
 - **Multiple Humor Styles**: Witty, sarcastic, observational, self-deprecating, absurd
 - **Real-time Response**: Uses Ollama for local inference
 - **Feedback System**: User ratings to improve humor quality
 - **Conversation Memory**: Maintains context across exchanges
 - **Rule-based Enhancements**: Adds comedic timing and wordplay
+- **Docker Deployment**: Production-ready containerized services
+- **GitHub Actions CI/CD**: Automated building and testing
 
 ## Quick Start
 
 ### Prerequisites
-- Python 3.11+
+- Python 3.11+ (for backend development)
+- Docker and Docker Compose (for production deployment)
 - 8GB+ RAM for local model inference
 - Ollama installed and running
 - uv package manager (https://github.com/astral-sh/uv)
 
-### Installation
+### Installation Options
+
+#### Option 1: Docker Deployment (Recommended)
+```bash
+# Clone repository
+git clone <repo-url>
+cd yes-and
+
+# Run with Docker Compose
+docker-compose up -d
+
+# Frontend will be available at http://localhost:3000
+# Backend API at http://localhost:8000
+```
+
+#### Option 2: Development Setup
 ```bash
 # Clone and setup
 git clone <repo-url>
 cd yes-and
 
-# Install dependencies with uv
+# Backend setup
 uv sync
+source .venv/bin/activate
 
 # Start Ollama
 ollama serve
-
-# Pull base model
 ollama pull llama3.2:3b
 
-# Run chatbot
-uv run streamlit run src/chatbot/humor_cohost.py
+# Run backend API
+uv run python src/api/main.py
 
-# Or activate the environment first
-source .venv/bin/activate  # or `.venv\Scripts\activate` on Windows
-streamlit run src/chatbot/humor_cohost.py
+# Frontend setup (in another terminal)
+cd frontend
+npm install
+npm run dev
+
+# Or run the legacy Streamlit interface
+uv run streamlit run src/chatbot/humor_cohost.py
 ```
 
 ### Usage
-1. Open browser to `http://localhost:8501`
-2. Select humor style from sidebar
-3. Start chatting with your AI comedy partner!
+1. **Web Interface**: Open browser to `http://localhost:3000` (React frontend) or `http://localhost:8501` (Streamlit)
+2. **API Access**: Backend available at `http://localhost:8000`
+3. Select humor style and start chatting with your AI comedy partner!
 
 ## Development Roadmap
 
@@ -191,12 +222,33 @@ uv run mypy src/
 ## Configuration
 
 ### Environment Variables
+
+#### Backend Configuration
 ```bash
 OLLAMA_HOST=localhost:11434
 MODEL_NAME=llama3.2:3b
 HUMOR_STYLE=witty
 LOG_LEVEL=INFO
 FEEDBACK_DB=data/feedback.json
+```
+
+#### Frontend Configuration
+```bash
+# Frontend .env file
+VITE_API_BASE_URL=http://localhost:8000
+VITE_DEV_MODE=true
+```
+
+#### Production Deployment
+For production deployment, update the frontend to connect to your backend:
+```bash
+# Frontend production config
+VITE_API_BASE_URL=http://your-backend-host:port
+```
+
+Example for Kubernetes deployment:
+```bash
+VITE_API_BASE_URL=http://192.168.50.2:31102
 ```
 
 ### Model Parameters
@@ -294,11 +346,38 @@ Enable debug logging:
 LOG_LEVEL=DEBUG streamlit run src/chatbot/humor_cohost.py
 ```
 
+## Docker Deployment
+
+### Building Images
+All Docker images are automatically built via GitHub Actions and published to GitHub Container Registry:
+
+```bash
+# Available images
+ghcr.io/nathanguevara/yes-and/yes-and-backend:latest
+ghcr.io/nathanguevara/yes-and/yes-and-frontend:latest
+ghcr.io/nathanguevara/yes-and/yes-and-ollama:latest
+```
+
+### Manual Building
+```bash
+# Build all images
+docker build -f Dockerfile.backend -t yes-and-backend .
+docker build -f Dockerfile.frontend -t yes-and-frontend .
+docker build -f Dockerfile.ollama -t yes-and-ollama .
+
+# Build specific image
+docker build -f Dockerfile.frontend -t my-frontend .
+```
+
+### Multi-Platform Support
+Images are built for both AMD64 and ARM64 architectures using the multi-platform workflow.
+
 ## API Specification
 
 ### Base URL
 - Development: `http://localhost:8000`
 - Docker: `http://localhost:8000`
+- Kubernetes: `http://your-cluster-ip:port`
 
 ### Authentication
 Currently, the API does not require authentication. This may change in future versions.
